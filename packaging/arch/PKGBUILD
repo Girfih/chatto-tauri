@@ -1,0 +1,17 @@
+pkgname=chatto-desktop
+pkgver=0.7.0
+pkgrel=1
+pkgdesc='Native desktop client for Chatto'
+arch=('x86_64')
+url='https://github.com/Girfih/chatto-tauri'
+license=('AGPL-3.0-or-later')
+depends=('webkit2gtk-4.1' 'gtk3' 'libappindicator' 'librsvg' 'alsa-lib' 'pipewire' 'openssl')
+source=('chatto-tauri')
+sha256sums=('SKIP')
+
+package() {
+  install -Dm755 "$srcdir/chatto-tauri" "$pkgdir/usr/bin/chatto-desktop"
+  install -Dm644 "$startdir/chatto.desktop" "$pkgdir/usr/share/applications/chatto.desktop"
+  install -Dm644 "$startdir/chatto.png" "$pkgdir/usr/share/icons/hicolor/512x512/apps/chatto.png"
+  install -Dm644 "$startdir/chatto-root-ca.crt" "$pkgdir/etc/ca-certificates/trust-source/anchors/chatto-root-ca.crt"
+}

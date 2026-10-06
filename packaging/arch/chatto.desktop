@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Chatto
+Comment=Native desktop client for Chatto
+Exec=chatto-desktop
+Icon=chatto
+Terminal=false
+Categories=Network;Chat;
+StartupWMClass=chatto-tauri
