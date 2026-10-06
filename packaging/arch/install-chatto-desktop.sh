@@ -4,6 +4,19 @@ set -Eeuo pipefail
 readonly APP_NAME='Chatto Desktop'
 readonly PACKAGE_NAME='chatto-desktop'
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+readonly PACKAGE_GLOB="${PACKAGE_NAME}-*.pkg.tar.*"
+
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  readonly C_RESET=$'\033[0m'
+  readonly C_BOLD=$'\033[1m'
+  readonly C_DIM=$'\033[2m'
+  readonly C_GREEN=$'\033[32m'
+  readonly C_CYAN=$'\033[36m'
+  readonly C_YELLOW=$'\033[33m'
+  readonly C_RED=$'\033[31m'
+else
+  readonly C_RESET='' C_BOLD='' C_DIM='' C_GREEN='' C_CYAN='' C_YELLOW='' C_RED=''
+fi
 
 usage() {
   cat <<'EOF'
@@ -13,11 +26,12 @@ usage() {
   ./install-chatto-desktop.sh
   ./install-chatto-desktop.sh /path/to/chatto-desktop-0.7.0-1-x86_64.pkg.tar.zst
   ./install-chatto-desktop.sh --check
+  ./install-chatto-desktop.sh --locate-only
 EOF
 }
 
 fail() {
-  printf 'Ошибка: %s\n' "$*" >&2
+  printf '%sОшибка:%s %s\n' "$C_RED" "$C_RESET" "$*" >&2
   exit 1
 }
 
@@ -35,13 +49,8 @@ find_package() {
   fi
 
   local package
-  package="$(
-    find "$SCRIPT_DIR" -maxdepth 1 -type f \\
-      -name "${PACKAGE_NAME}-*.pkg.tar.*" \\
-      ! -name '*-debug-*' \\
-      -print -quit
-  )"
-  [[ -n "$package" ]] || fail "положите пакет ${PACKAGE_NAME}-*.pkg.tar.* рядом со скриптом или передайте его путь"
+  package="$(find "$SCRIPT_DIR" -type f -name "$PACKAGE_GLOB" ! -name '*-debug-*' -printf '%T@\t%p\n' 2>/dev/null | sort -t $'\t' -k1,1nr | head -n1 | cut -f2- || true)"
+  [[ -n "$package" ]] || fail "рядом со скриптом не найден пакет $PACKAGE_GLOB"
   printf '%s\n' "$(realpath -- "$package")"
 }
 
@@ -84,6 +93,10 @@ main() {
       info 'Проверка пройдена: Arch Linux x86_64 и pacman доступны.'
       exit 0
       ;;
+    --locate-only)
+      find_package
+      exit 0
+      ;;
     --*)
       usage >&2
       exit 2
@@ -94,8 +107,11 @@ main() {
   local package
   package="$(find_package "${1:-}")"
 
-  info "Пакет: $package"
-  info "Установка $APP_NAME..."
+  info "${C_CYAN}${C_BOLD}Chatto Desktop${C_RESET}"
+  info "${C_DIM}Arch Linux • x86_64 • установка пакета${C_RESET}"
+  info ""
+  info "${C_BOLD}Пакет:${C_RESET} $package"
+  info "${C_BOLD}Установка:${C_RESET} $APP_NAME"
   sudo pacman -U --needed --noconfirm -- "$package"
 
   # pacman normally runs this hook itself; this also covers custom Arch setups.
@@ -104,8 +120,9 @@ main() {
   fi
 
   verify_installation
-  info "Готово. Запуск: chatto-desktop"
-  info "Приложение также доступно в меню рабочего стола."
+  info ""
+  info "${C_GREEN}${C_BOLD}Готово.${C_RESET} Запуск: ${C_BOLD}chatto-desktop${C_RESET}"
+  info "${C_DIM}Приложение также доступно в меню рабочего стола.${C_RESET}"
 }
 
 main "$@"
