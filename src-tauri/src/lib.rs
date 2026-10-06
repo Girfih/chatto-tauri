@@ -20,7 +20,7 @@ use std::sync::atomic::{AtomicI32, Ordering};
 // on the configured origin host, foreign-host clicks are externalized.
 static CONFIGURED_ORIGIN_HOST: Mutex<Option<String>> = Mutex::new(None);
 
-const DEFAULT_SERVER_URL: &str = "https://chat.chatto.run";
+const DEFAULT_SERVER_URL: &str = "https://chatto.144.31.38.231.nip.io:8443";
 
 const NOTIFICATION_BRIDGE_JS: &str = r#"
 (function() {

@@ -80,7 +80,7 @@
     event?.preventDefault();
     error = "";
 
-    let url = serverUrl.trim() || "https://chat.chatto.run";
+    let url = serverUrl.trim() || "https://chatto.144.31.38.231.nip.io:8443";
 
     if (!/^https?:\/\//i.test(url)) {
       url = "https://" + url;
